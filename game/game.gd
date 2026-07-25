@@ -27,7 +27,7 @@ var rng = RandomNumberGenerator.new()
 func _ready() -> void:
 	print("Hello from game!")
 	load_room_resources()
-	set_time(time)
+	set_time(time, 0)
 
 	pick_room(0)
 	build_rooms()
