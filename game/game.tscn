@@ -580,5 +580,5 @@ scale = Vector2(2.1273532, 5.3204393)
 texture = SubResource("GradientTexture1D_km8ha")
 
 [connection signal="gain_time" from="Player" to="." method="on_gain_time"]
-[connection signal="take_damage" from="Player" to="." method="_on_player_take_damage"]
 [connection signal="take_damage" from="Player" to="." method="on_player_damage"]
+[connection signal="take_damage" from="Player" to="." method="_on_player_take_damage"]
