@@ -9,8 +9,16 @@ signal gain_time(amount: int)
 
 enum DIRECTIONS {UP, DOWN, FRONT, BACK}
 
+<<<<<<< HEAD
 var ShurikenJutsu = preload("res://game/player_attacks/ShurikenJutsu.tscn")
 var FlowerJutsu = preload("res://game/player_attacks/Flower.tscn")
+=======
+var input_history: Array = []
+var time_since_last_action = 0
+>>>>>>> 16e8b8cb884abd44ee3af9770ba3df256f30f3c5
+
+var jutsu_time_frame = .1
+var tick = 0
 
 var facing_direction
 
@@ -94,6 +102,7 @@ func deal_damage(weapon: Node2D, amount: int):
 
 	print("Ow! Took ", amount, " damage!")
 
+<<<<<<< HEAD
 	
 	var he: Node2D = %HitEffect.spawn()
 	he.global_position = self.global_position
@@ -127,6 +136,23 @@ func _process(delta: float) -> void:
 		if stamina < 35:
 			color = STAMINA_CHARGED_OUTLINE_COLOR * ((stamina - 30) / 5) + STAMINA_NOT_CHARGED_OUTLINE_COLOR * (1 - ((stamina - 30) / 5))
 		%TextureRect.set_instance_shader_parameter("outline_color", color)
+=======
+func _physics_process(delta):
+	tick += delta
+
+	var input_history_index = 0
+	while input_history_index < len(input_history):
+		var input = input_history[input_history_index]
+		
+		if tick - input[1] > jutsu_time_frame:
+			input_history.pop_at(input_history_index)
+		else:
+			input_history_index += 1
+
+	# Add the gravity.
+	if lock_velocity <= 0:
+		velocity += get_gravity() * delta
+>>>>>>> 16e8b8cb884abd44ee3af9770ba3df256f30f3c5
 	else:
 		%TextureRect.set_instance_shader_parameter("outline_color", STAMINA_NOT_CHARGED_OUTLINE_COLOR)
 
@@ -186,6 +212,7 @@ func _physics_process(delta):
 				parent.queue_free()
 
 	# Handle jump.
+<<<<<<< HEAD
 	# Jutsu are checked first because it has priority consuming inputs for the frame
 	execute_jutsu()
 	
@@ -203,6 +230,35 @@ func _physics_process(delta):
 	if dash_timer <= 0:
 		var direction = %InputBuffer.get_axis("left", "right")
 		var walk = WALK_MAX_SPEED * direction
+=======
+	if Input.is_action_just_pressed("jump") and is_on_floor():
+		velocity.y = JUMP_VELOCITY
+
+	# Handle Jutsu
+	time_since_last_action += delta
+	# Make sure that the keys are pressed at the same time
+	if time_since_last_action > jutsu_time_frame:
+		input_history = []
+
+	# Handle Input History
+	if Input.is_action_just_pressed("special"):
+		time_since_last_action = 0
+		input_history.push_back(["special", tick])
+	if Input.is_action_just_pressed("up"):
+		time_since_last_action = 0
+		input_history.push_back(["up", tick])
+	if Input.is_action_just_pressed("down"):
+		time_since_last_action = 0
+		input_history.push_back(["down", tick])
+	if Input.is_action_just_pressed("left"):
+		time_since_last_action = 0
+		input_history.push_back(["side", tick])
+	if Input.is_action_just_pressed("right"):
+		time_since_last_action = 0
+		input_history.push_back(["side", tick])
+
+	execute_jutsu()
+>>>>>>> 16e8b8cb884abd44ee3af9770ba3df256f30f3c5
 
 		friction(delta)
 
@@ -222,6 +278,7 @@ func _physics_process(delta):
 
 	move_and_slide()
 
+<<<<<<< HEAD
 func friction(delta):
 	# The velocity, slowed down a bit, and then reassigned.
 	if is_on_floor():
@@ -300,3 +357,33 @@ func flower_jutsu():
 	var f = FlowerJutsu.instantiate()
 	f.global_position = self.global_position - Vector2(0, 100)
 	get_parent().add_child(f)
+=======
+func input_history_includes_key(key):
+	for ih in input_history:
+		if ih[0] == key and tick - ih[1] < jutsu_time_frame:
+			return true
+	return false
+	
+func execute_jutsu():
+	if not input_history_includes_key("special"):
+		return
+	
+	if input_history_includes_key("up"):
+		spring_jump_jutsu()
+		input_history.clear()
+
+	if input_history_includes_key("side"):
+		sword_charge_jutsu()
+		input_history.clear()
+
+func spring_jump_jutsu():
+	print("spring jump!")
+	velocity.y -= 5000
+
+func sword_charge_jutsu():
+	if facing_direction == "right":
+		velocity.x += 4000
+	else:
+		velocity.x -= 4000
+	lock_velocity = .1
+>>>>>>> 16e8b8cb884abd44ee3af9770ba3df256f30f3c5
